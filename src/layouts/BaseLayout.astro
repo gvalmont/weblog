@@ -8,9 +8,14 @@ interface Props {
   title?: string;
   description?: string;
   canonical?: URL;
+  type?: "article" | "website";
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  image?: string | URL;
 }
 
-const { title, description, canonical } = Astro.props;
+const { title, description, canonical, type, publishedTime, modifiedTime, tags, image } = Astro.props;
 ---
 
 <!doctype html>
@@ -39,7 +44,16 @@ const { title, description, canonical } = Astro.props;
         }
       })();
     </script>
-    <BaseHead title={title} description={description} canonical={canonical} />
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={canonical}
+      type={type}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      tags={tags}
+      image={image}
+    />
   </head>
   <body>
     <Header />

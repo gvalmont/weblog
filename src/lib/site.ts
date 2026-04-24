@@ -1,6 +1,7 @@
 export const siteTitle = "Guillaume Valmont's Weblog";
 export const siteDescription =
-  "Guillaume Valmont's personal blog with RSS, sharing, and accountless comments.";
+  "Guillaume Valmont's notes on AI-assisted web development experiments and learnings.";
+export const defaultOgImage = "/og-default.png";
 
 export const authorName = "Guillaume Valmont";
 

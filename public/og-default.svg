@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Guillaume Valmont's Weblog</title>
+  <desc id="desc">Default social preview image for Guillaume Valmont's Weblog.</desc>
+  <rect width="1200" height="630" fill="#fdfdfb"/>
+  <rect x="48" y="48" width="1104" height="534" fill="#11110f"/>
+  <path d="M96 498h1008" stroke="#ff9a73" stroke-width="8"/>
+  <text x="96" y="198" fill="#f0eee7" font-family="Georgia, 'Times New Roman', serif" font-size="68" font-weight="700">
+    Guillaume Valmont
+  </text>
+  <text x="96" y="292" fill="#f0eee7" font-family="Georgia, 'Times New Roman', serif" font-size="68" font-weight="700">
+    Weblog
+  </text>
+  <text x="96" y="390" fill="#aaa59a" font-family="Georgia, 'Times New Roman', serif" font-size="32">
+    Notes on AI-assisted web development.
+  </text>
+  <text x="96" y="546" fill="#f0eee7" font-family="Georgia, 'Times New Roman', serif" font-size="28">
+    blog.valmont.dev
+  </text>
+</svg>
