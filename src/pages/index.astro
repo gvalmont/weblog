@@ -1,0 +1,19 @@
+---
+import PostList from "@/components/PostList.astro";
+import { getPublishedPosts } from "@/lib/posts";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout>
+  <h1>Recent Posts</h1>
+  <PostList posts={posts.slice(0, 10)} />
+  {
+    posts.length > 10 && (
+      <p>
+        <a href="/archive/">Older posts</a>
+      </p>
+    )
+  }
+</BaseLayout>

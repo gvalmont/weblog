@@ -1,0 +1,29 @@
+---
+import { formatDate, getPublishedPosts, getPostUrl } from "@/lib/posts";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+const posts = await getPublishedPosts();
+const postsByYear = new Map<number, typeof posts>();
+for (const post of posts) {
+  const year = post.data.pubDate.getFullYear();
+  postsByYear.set(year, [...(postsByYear.get(year) ?? []), post]);
+}
+const years = Array.from(postsByYear.keys()).sort((a, b) => b - a);
+---
+
+<BaseLayout title="Archive" description="All published posts.">
+  <h1>Archive</h1>
+  {years.map((year) => (
+    <section class="archive-year" aria-labelledby={`year-${year}`}>
+      <h2 id={`year-${year}`}>{year}</h2>
+      <ol class="archive-list">
+        {postsByYear.get(year)?.map((post) => (
+          <li>
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <a href={getPostUrl(post.slug)}>{post.data.title}</a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+</BaseLayout>

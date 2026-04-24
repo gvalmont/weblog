@@ -1,0 +1,67 @@
+---
+interface Props {
+  title: string;
+  url: string;
+}
+
+const { title, url } = Astro.props;
+const encodedUrl = encodeURIComponent(url);
+const encodedTitle = encodeURIComponent(title);
+const encodedText = encodeURIComponent(`${title} ${url}`);
+
+const links = [
+  {
+    label: "Hacker News",
+    href: `https://news.ycombinator.com/submitlink?u=${encodedUrl}&t=${encodedTitle}`,
+  },
+  {
+    label: "X",
+    href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
+  },
+  {
+    label: "LinkedIn",
+    href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+  },
+  {
+    label: "Reddit",
+    href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
+  },
+  {
+    label: "Bluesky",
+    href: `https://bsky.app/intent/compose?text=${encodedText}`,
+  },
+];
+---
+
+<section class="share-section" aria-labelledby="share-title">
+  <h2 id="share-title">Share</h2>
+  <ul class="share-links">
+    {
+      links.map((link) => (
+        <li>
+          <a href={link.href} target="_blank" rel="noopener noreferrer">
+            {link.label}
+          </a>
+        </li>
+      ))
+    }
+    <li>
+      <button class="copy-link" type="button" data-copy-url={url}>Copy link</button>
+    </li>
+  </ul>
+</section>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy-url]")) {
+    button.addEventListener("click", async () => {
+      const url = button.dataset.copyUrl;
+      if (!url || !navigator.clipboard) return;
+      await navigator.clipboard.writeText(url);
+      const previous = button.textContent;
+      button.textContent = "Copied";
+      window.setTimeout(() => {
+        button.textContent = previous;
+      }, 1000);
+    });
+  }
+</script>

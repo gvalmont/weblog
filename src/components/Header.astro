@@ -1,0 +1,54 @@
+---
+import { siteTitle } from "@/lib/site";
+---
+
+<header class="site-header">
+  <div class="site-shell">
+    <a class="site-title" href="/">{siteTitle}</a>
+    <div class="site-actions">
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="/archive/">Archive</a>
+        <a href="/about/">About</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+      <button
+        class="theme-toggle"
+        type="button"
+        aria-label="Switch to light theme"
+        aria-pressed="true"
+        data-theme-toggle
+      >
+        Dark
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const storageKey = "theme";
+  const root = document.documentElement;
+  const toggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+
+  const getTheme = () => (root.dataset.theme === "light" ? "light" : "dark");
+
+  const updateToggle = () => {
+    if (!toggle) return;
+
+    const theme = getTheme();
+    const isDark = theme === "dark";
+
+    toggle.textContent = isDark ? "Dark" : "Light";
+    toggle.setAttribute("aria-pressed", String(isDark));
+    toggle.setAttribute("aria-label", `Switch to ${isDark ? "light" : "dark"} theme`);
+  };
+
+  updateToggle();
+
+  toggle?.addEventListener("click", () => {
+    const nextTheme = getTheme() === "dark" ? "light" : "dark";
+
+    root.dataset.theme = nextTheme;
+    localStorage.setItem(storageKey, nextTheme);
+    updateToggle();
+  });
+</script>

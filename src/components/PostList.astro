@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { formatDate, getPostUrl } from "@/lib/posts";
+
+interface Props {
+  posts: CollectionEntry<"blog">[];
+}
+
+const { posts } = Astro.props;
+---
+
+<ol class="post-list">
+  {posts.map((post) => (
+    <li>
+      <h2><a href={getPostUrl(post.slug)}>{post.data.title}</a></h2>
+      <p class="post-meta">{formatDate(post.data.pubDate)}</p>
+      <p class="post-description">{post.data.description}</p>
+    </li>
+  ))}
+</ol>
+

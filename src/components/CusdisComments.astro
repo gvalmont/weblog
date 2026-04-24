@@ -1,0 +1,243 @@
+---
+interface Props {
+  pageId: string;
+  pageTitle: string;
+  pageUrl: string;
+}
+
+const { pageId, pageTitle, pageUrl } = Astro.props;
+const host = import.meta.env.PUBLIC_CUSDIS_HOST ?? "https://cusdis.com";
+const appId = import.meta.env.PUBLIC_CUSDIS_APP_ID;
+---
+
+<section class="comments-section" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comments</h2>
+  <div
+    id="cusdis_thread"
+    data-host={host}
+    data-app-id={appId}
+    data-page-id={pageId}
+    data-page-url={pageUrl}
+    data-page-title={pageTitle}
+    data-theme="dark"
+  >
+  </div>
+  <script is:inline async defer src={`${host}/js/cusdis.es.js`}></script>
+  <script is:inline>
+    (() => {
+      const thread = document.querySelector("#cusdis_thread");
+      const resizeBuffer = 24;
+      const cusdisThemeStyleId = "blog-cusdis-theme";
+      let currentIframe;
+      let contentResizeObserver;
+      let contentMutationObserver;
+
+      if (!thread) {
+        return;
+      }
+
+      const getTheme = () => (document.documentElement.dataset.theme === "light" ? "light" : "dark");
+
+      const setThreadTheme = () => {
+        thread.dataset.theme = getTheme();
+      };
+
+      const applyCusdisTheme = (iframe) => {
+        try {
+          const doc = iframe.contentDocument;
+
+          if (!doc?.head || !doc.body) {
+            return;
+          }
+
+          doc.documentElement.dataset.theme = getTheme();
+          iframe.style.colorScheme = getTheme();
+
+          let style = doc.getElementById(cusdisThemeStyleId);
+
+          if (!style) {
+            style = doc.createElement("style");
+            style.id = cusdisThemeStyleId;
+            style.textContent = `
+              :root {
+                color-scheme: dark;
+                --cusdis-bg: #11110f;
+                --cusdis-text: #f0eee7;
+                --cusdis-muted: #aaa59a;
+                --cusdis-border: #3a362f;
+                --cusdis-link: #8fb8ff;
+                --cusdis-field-bg: #171612;
+                --cusdis-button-bg: #24211d;
+              }
+
+              :root[data-theme="light"] {
+                color-scheme: light;
+                --cusdis-bg: #fdfdfb;
+                --cusdis-text: #151515;
+                --cusdis-muted: #62615d;
+                --cusdis-border: #dedbd2;
+                --cusdis-link: #0645ad;
+                --cusdis-field-bg: #ffffff;
+                --cusdis-button-bg: #e5e7eb;
+              }
+
+              html,
+              body,
+              #root {
+                background: var(--cusdis-bg) !important;
+                color: var(--cusdis-text) !important;
+              }
+
+              body {
+                color-scheme: inherit;
+              }
+
+              a {
+                color: var(--cusdis-link) !important;
+              }
+
+              input,
+              textarea {
+                background: var(--cusdis-field-bg) !important;
+                border-color: var(--cusdis-border) !important;
+                color: var(--cusdis-text) !important;
+              }
+
+              input::placeholder,
+              textarea::placeholder {
+                color: var(--cusdis-muted) !important;
+              }
+
+              button {
+                background: var(--cusdis-button-bg) !important;
+                border-color: var(--cusdis-border) !important;
+                color: var(--cusdis-text) !important;
+              }
+
+              * {
+                border-color: var(--cusdis-border);
+              }
+            `;
+            doc.head.append(style);
+          }
+        } catch {
+          // Cusdis currently uses srcdoc, but keep the embed working if that changes.
+        }
+      };
+
+      const getContentHeight = (iframe) => {
+        try {
+          const doc = iframe.contentDocument;
+          const body = doc?.body;
+          const root = doc?.querySelector("#root");
+
+          if (!body) {
+            return null;
+          }
+
+          const content = root ?? body;
+          const rect = content.getBoundingClientRect();
+
+          return Math.ceil(rect.top + rect.height);
+        } catch {
+          return null;
+        }
+      };
+
+      const fitCusdisIframe = (reportedHeight) => {
+        const iframe = thread.querySelector("iframe");
+
+        if (!iframe) {
+          return;
+        }
+
+        iframe.setAttribute("scrolling", "no");
+        iframe.style.overflow = "hidden";
+        applyCusdisTheme(iframe);
+
+        const contentHeight = getContentHeight(iframe);
+        const height = contentHeight ?? reportedHeight;
+
+        if (Number.isFinite(height)) {
+          iframe.style.height = `${height + resizeBuffer}px`;
+        }
+      };
+
+      const observeCusdisContent = () => {
+        const iframe = thread.querySelector("iframe");
+
+        if (!iframe || iframe === currentIframe) {
+          return;
+        }
+
+        currentIframe = iframe;
+        contentResizeObserver?.disconnect();
+        contentMutationObserver?.disconnect();
+
+        const watchContent = () => {
+          setThreadTheme();
+          applyCusdisTheme(iframe);
+          fitCusdisIframe();
+          contentResizeObserver?.disconnect();
+          contentMutationObserver?.disconnect();
+
+          try {
+            const doc = iframe.contentDocument;
+
+            if (!doc?.body) {
+              return;
+            }
+
+            const content = doc.querySelector("#root") ?? doc.body;
+            contentResizeObserver = new ResizeObserver(() => fitCusdisIframe());
+            contentResizeObserver.observe(content);
+
+            contentMutationObserver = new MutationObserver(() => fitCusdisIframe());
+            contentMutationObserver.observe(content, {
+              attributes: true,
+              childList: true,
+              subtree: true,
+            });
+          } catch {
+            // Cusdis currently uses srcdoc, but keep the embed working if that changes.
+          }
+        };
+
+        iframe.addEventListener("load", watchContent);
+        window.setTimeout(watchContent, 0);
+      };
+
+      window.addEventListener("message", (event) => {
+        try {
+          const message = JSON.parse(event.data);
+
+          if (message.from === "cusdis" && message.event === "resize") {
+            window.setTimeout(() => fitCusdisIframe(Number(message.data)), 0);
+          }
+        } catch {
+          // Ignore messages from other embedded widgets.
+        }
+      });
+
+      new MutationObserver(observeCusdisContent).observe(thread, {
+        childList: true,
+      });
+
+      new MutationObserver(() => {
+        const iframe = thread.querySelector("iframe");
+
+        setThreadTheme();
+
+        if (iframe) {
+          applyCusdisTheme(iframe);
+        }
+      }).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+
+      setThreadTheme();
+      observeCusdisContent();
+    })();
+  </script>
+</section>

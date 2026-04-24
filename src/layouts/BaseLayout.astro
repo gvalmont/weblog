@@ -1,0 +1,53 @@
+---
+import BaseHead from "@/components/BaseHead.astro";
+import Footer from "@/components/Footer.astro";
+import Header from "@/components/Header.astro";
+import "@/styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: URL;
+}
+
+const { title, description, canonical } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <script is:inline>
+      (() => {
+        const storageKey = "theme";
+        const themes = ["light", "dark"];
+
+        try {
+          const storedTheme = localStorage.getItem(storageKey);
+          const theme = themes.includes(storedTheme)
+            ? storedTheme
+            : window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+
+          if (theme === "light") {
+            document.documentElement.dataset.theme = "light";
+          } else if (storedTheme === "dark") {
+            document.documentElement.dataset.theme = "dark";
+          }
+        } catch {
+          // Keep the CSS default dark theme if storage or media queries are unavailable.
+        }
+      })();
+    </script>
+    <BaseHead title={title} description={description} canonical={canonical} />
+  </head>
+  <body>
+    <Header />
+    <main class="site-main">
+      <div class="site-shell">
+        <slot />
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,26 @@
+---
+import { siteDescription, siteTitle } from "@/lib/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: URL;
+}
+
+const { title, description = siteDescription, canonical = Astro.url } = Astro.props;
+const pageTitle = title ? `${title} - ${siteTitle}` : siteTitle;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content={description} />
+<meta name="generator" content={Astro.generator} />
+<title>{pageTitle}</title>
+<link rel="canonical" href={canonical} />
+<link rel="alternate" type="application/rss+xml" title={`${siteTitle} RSS`} href="/rss.xml" />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content="article" />
+<meta property="og:url" content={canonical} />
+<meta name="twitter:card" content="summary" />
+
