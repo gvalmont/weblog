@@ -21,13 +21,13 @@ Set `draft: true` to exclude a post from production pages and RSS.
 
 ## Deployment
 
-The GitHub Actions workflow builds the site and uploads `dist/` by SFTP. Configure these repository secrets:
+The GitHub Actions workflow builds the site and uploads `dist/` by FTPS. Configure these repository secrets:
 
-- `SFTP_HOST`
-- `SFTP_USER`
-- `SFTP_PASSWORD`
-- `SFTP_PORT` (optional, defaults to `22`)
-- `SFTP_TARGET`
+- `FTPS_HOST`
+- `FTPS_USER`
+- `FTPS_PASSWORD`
+- `FTPS_PORT` (optional, defaults to `21`)
+- `FTPS_TARGET` (remote directory, with a trailing `/`)
 
 Configure these repository variables:
 

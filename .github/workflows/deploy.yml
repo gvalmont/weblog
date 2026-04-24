@@ -33,14 +33,13 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Deploy over SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.5
+      - name: Deploy over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
-          server: ${{ secrets.SFTP_HOST }}
-          username: ${{ secrets.SFTP_USER }}
-          port: ${{ secrets.SFTP_PORT || '22' }}
-          ssh_private_key: ""
-          password: ${{ secrets.SFTP_PASSWORD }}
-          local_path: ./dist/*
-          remote_path: ${{ secrets.SFTP_TARGET }}
-          sftp_only: true
+          server: ${{ secrets.FTPS_HOST }}
+          username: ${{ secrets.FTPS_USER }}
+          password: ${{ secrets.FTPS_PASSWORD }}
+          port: ${{ secrets.FTPS_PORT || '21' }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ secrets.FTPS_TARGET }}
