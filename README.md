@@ -26,6 +26,7 @@ The GitHub Actions workflow builds the site and uploads `dist/` by SFTP. Configu
 - `SFTP_HOST`
 - `SFTP_USER`
 - `SFTP_PASSWORD`
+- `SFTP_PORT` (optional, defaults to `22`)
 - `SFTP_TARGET`
 
 Configure these repository variables:
