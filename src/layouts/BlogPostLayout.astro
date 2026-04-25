@@ -1,4 +1,5 @@
 ---
+import type { MarkdownHeading } from "astro";
 import type { CollectionEntry } from "astro:content";
 import CusdisComments from "@/components/CusdisComments.astro";
 import ShareLinks from "@/components/ShareLinks.astro";
@@ -7,9 +8,10 @@ import BaseLayout from "./BaseLayout.astro";
 
 interface Props {
   post: CollectionEntry<"blog">;
+  headings: MarkdownHeading[];
 }
 
-const { post } = Astro.props;
+const { post, headings } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -37,10 +39,46 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         </ul>
       )}
     </header>
+    {headings.length > 0 && (
+      <nav class="post-toc" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <ol>
+          {headings.map((heading) => (
+            <li class={`toc-depth-${heading.depth}`}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
     <div class="post-body">
       <slot />
     </div>
   </article>
   <ShareLinks title={post.data.title} url={canonical.href} />
   <CusdisComments pageId={canonical.pathname} pageTitle={post.data.title} pageUrl={canonical.href} />
+
+  <script>
+    for (const heading of document.querySelectorAll(".post-body h2[id], .post-body h3[id]")) {
+      if (heading.querySelector(":scope > .heading-self-link")) {
+        continue;
+      }
+
+      const link = document.createElement("a");
+      const title = heading.textContent?.trim();
+
+      link.className = "heading-self-link";
+      link.href = `#${heading.id}`;
+
+      if (title) {
+        link.setAttribute("aria-label", `${title} section link`);
+      }
+
+      while (heading.firstChild) {
+        link.appendChild(heading.firstChild);
+      }
+
+      heading.appendChild(link);
+    }
+  </script>
 </BaseLayout>
