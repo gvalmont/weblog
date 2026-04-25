@@ -12,6 +12,7 @@ jobs:
     env:
       PUBLIC_CUSDIS_HOST: ${{ vars.PUBLIC_CUSDIS_HOST || 'https://cusdis.com' }}
       PUBLIC_CUSDIS_APP_ID: ${{ vars.PUBLIC_CUSDIS_APP_ID }}
+      PUBLIC_BUTTONDOWN_USERNAME: ${{ vars.PUBLIC_BUTTONDOWN_USERNAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

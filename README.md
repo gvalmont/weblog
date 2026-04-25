@@ -33,3 +33,4 @@ Configure these repository variables:
 
 - `PUBLIC_CUSDIS_HOST`
 - `PUBLIC_CUSDIS_APP_ID`
+- `PUBLIC_BUTTONDOWN_USERNAME`
