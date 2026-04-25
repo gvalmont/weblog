@@ -1,0 +1,32 @@
+---
+const buttondownUsername = import.meta.env.PUBLIC_BUTTONDOWN_USERNAME;
+const formAction = buttondownUsername
+  ? `https://buttondown.com/api/emails/embed-subscribe/${buttondownUsername}`
+  : undefined;
+---
+
+{
+  formAction ? (
+    <form class="subscribe-form" action={formAction} method="post">
+      <label for="subscribe-email">Email address</label>
+      <div class="subscribe-form-row">
+        <input
+          id="subscribe-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@example.com"
+          required
+        />
+        <input type="hidden" name="embed" value="1" />
+        <button type="submit">Subscribe</button>
+      </div>
+    </form>
+  ) : (
+    <p class="subscribe-config-note">
+      Email subscriptions are not configured yet. Set <code>PUBLIC_BUTTONDOWN_USERNAME</code> to enable
+      the signup form.
+    </p>
+  )
+}

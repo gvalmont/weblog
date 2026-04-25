@@ -1,0 +1,11 @@
+---
+import SubscribeForm from "@/components/SubscribeForm.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Subscribe" description="Get new weblog posts by email or RSS.">
+  <h1>Subscribe</h1>
+  <p>Get an email when a new weblog post is published. No account is needed, and every email includes an unsubscribe link.</p>
+  <SubscribeForm />
+  <p class="muted">Prefer a feed reader? Use the <a href="/rss.xml">RSS feed</a>.</p>
+</BaseLayout>
