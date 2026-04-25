@@ -1,32 +1,37 @@
 ---
-title: "GPT-5.5 ownership and order effects"
-description: "While comparing medium, high, and extra-high reasoning modes on the same task, I uncovered consistent ownership and presentation-order effects in GPT-5.5’s evaluations."
+title: "GPT-5.5 is a biased evaluator: authorship and order effects"
+description: "While comparing medium, high, and extra-high reasoning modes on the same task, I uncovered consistent authorship and presentation-order effects in GPT-5.5’s evaluations."
 pubDate: 2026-04-25
 tags: ["coding-agents", "ai", "gpt", "evaluation"]
 ---
 
 ## Key takeaways
 
-- GPT-5.5 often rates alternative plans more favorably than its own, even when its original proposal is competitive (ownership effect).
-- When ranking plans, GPT-5.5 frequently follows the presentation order (order effect).
-- Reasoning mode alone is not a reliable indicator of plan quality or evaluation accuracy.
-- Human review remains necessary to obtain reliable results.
+- GPT-5.5 ranked its own plan last in 5/6 cases (authorship effect).
+- GPT-5.5 followed presentation order in 25/45 rankings (~56%) (order effect).
+- Increasing reasoning (`high`, `xhigh`) does not fix these biases.
+- As a result, **LLM-based plan ranking is unreliable in this setup**.
+- Human or external evaluation remains necessary.
 
 ## Introduction
-
-This article shows that GPT-5.5’s evaluation of plans is systematically affected by two irrelevant factors: whether it authored the plan (ownership) and the order in which plans are presented. These effects are strong enough to undermine ranking-based evaluation workflows.
-
-Across all runs:
-
-- Models ranked their own plan last in 5/6 cases (ownership effect)
-- Rankings matched presentation order in 25/46 cases (order effect)
-- Agreement between models was low
-
-## Context
 
 GPT-5.5 has just been released.
 
 According to its [introduction by OpenAI](https://openai.com/index/introducing-gpt-5-5/) "*Instead of carefully managing every step, you can give GPT‑5.5 a messy, multi-part task and trust it to plan, use tools, check its work, navigate through ambiguity, and keep going.*"
+
+I tested whether GPT-5.5 can reliably evaluate and rank alternative plans. In this setup, it couldn’t.
+
+Its judgments are strongly influenced by two irrelevant factors: whether it authored the plan, and the order in which plans are presented.
+
+These effects are large enough to make ranking-based evaluation unreliable.
+
+Across all runs:
+
+- Models ranked their own plan last in 5/6 cases (authorship effect)
+- Rankings matched presentation order in 25/46 cases (order effect)
+- Agreement between models was low
+
+## Context
 
 I wanted to test this claim using a moderately ambiguous prompt:
 
@@ -37,15 +42,17 @@ how to separate each auto and eval page instead of merging them in /?/?/auto ?
 
 Here's the image : [image](/images/datadog-view-count.png)
 
-I initially assumed the issue was straightforward: a simple toggle to disable Datadog’s default view grouping. To test this, I ran the same prompt using `medium`, `high`, and `xhigh` reasoning modes.
+Results:
 
-The `high` and `xhigh` modes produced detailed and seemingly convincing plans, suggesting I had underestimated the problem. However, on closer inspection, `high` proposed adding Next.js instrumentation, and `xhigh` went as far as monkey-patching browser history (which were unneeded complexity).
+- `medium` designed a simple, correct fix (disable grouping + use existing beforeSend hook)
+- `high` added unnecessary complexity with Next.js instrumentation
+- `xhigh` added unnecessary complexity by monkey-patching browser history
 
-In contrast, `medium` suggested disabling default grouping and setting the view name in the existing `beforeSend` hook (an approach that was both simpler and aligned with my initial intuition).
+More reasoning led to more complex (and sometimes worse) solutions.
 
 In order to verify if `medium` was actually better than `high` and `xhigh` I repeated the experiment using a more controlled protocol. This assumption proved wrong but led to even more interesting observations.
 
-## Plan evaluation with ownership
+## Plan evaluation with authorship
 
 ### Protocol
 
@@ -177,15 +184,15 @@ There was some differences between the runs: this time, `xhigh` produced the bes
 
 </details>
 
-### Ownership effect
+### Authorship effect
 
 The initial goal was to make them collectively decide which reasoning mode was the best. In the end the best one was not a particular reasoning model: it was the one which ended with the better choice (use `beforeSend`) which was `medium` in the first two runs and `xhigh` in the last one. This suggests that reasoning mode alone is not a reliable indicator of plan quality.
 
-Unexpectedly, these results suggest an even more interesting **ownership effect: when evaluating its own earlier plan against alternatives, the model consistently downgraded its original proposal** and ranked itself last 5/6 times.
+Unexpectedly, these results suggest an even more interesting **authorship effect: when evaluating its own earlier plan against alternatives, the model consistently downgraded its original proposal** and ranked itself last 5/6 times.
 
-This raises a follow-up question: what happens if plans are evaluated without any notion of ownership?
+This raises a follow-up question: what happens if plans are evaluated without any notion of authorship?
 
-## Part 2 : Plan evaluation without ownership
+## Part 2 : Plan evaluation without authorship
 
 ### Protocol
 
@@ -284,24 +291,33 @@ Evaluate each of the following plans. List their strengths, their weaknesses and
 
 Across 45 rankings (3 orders × 3 modes × 5 runs), the 1 > 2 > 3 ranking appeared 25 times, so about 56% of occurrence. This is significantly higher than what would be expected under order-independent rankings and suggests an **order effect: when ranking plans, the model frequently ranked them in the same order as they were presented**.
 
+## Implications
+
+If you use LLMs to evaluate or rank plans (e.g., agent selection, self-reflection, or tool choice), your results may be biased by:
+
+- authorship (who wrote the plan)
+- presentation order
+
+This makes naive ranking-based evaluation unreliable, even with higher reasoning modes.
+
 ## Limitations
 
-This experiment is limited in scope: it examines a single problem, a small number of runs, and one evaluation format, reasoning modes are compared one to each other but there is no comparison between runs with the same reasoning mode. Results may vary across tasks, prompts, or domains. Further testing would be needed to generalize these findings.
+This experiment is limited in scope. It examines one problem, a small number of runs, and one evaluation format. The reasoning modes are compared against each other, but I did not compare multiple independently generated plans from the same reasoning mode. Results may vary across tasks, prompts, or domains. Further testing would be needed to generalize these findings.
 
 ## Conclusion
 
-This experiment does not establish a universal bias in GPT-5.5, but it highlights consistent patterns:
+This experiment highlights consistent patterns:
 
-- When comparing its own plan with alternatives, GPT-5.5 rated alternative plans more favorably than its own earlier proposal (ownership effect).
-- When ranking anonymous plans, GPT-5.5 frequently ranked them in the same order as they were presented (order effect).
-- These effects interact: once ownership is removed, presentation order appears to become the dominant signal.
-- Reasoning mode alone was not a reliable indicator of plan quality.
-- GPT-5.5’s plan rankings were inconsistent in this setup and should be treated with caution.
-- Regardless of reasoning mode, model-generated plans benefit from external judgment, especially when the task involves implementation tradeoffs.
+- GPT-5.5 favors alternative plans over its own (authorship effect).
+- GPT-5.5 often follows presentation order when ranking (order effect).
+- Increasing reasoning does not fix these biases.
+- Plan rankings are inconsistent and should be treated with caution.
+
+These effects interact: once authorship is removed, presentation order becomes the dominant signal.
 
 **Recommendations:**
 
-- Be extra cautious when proposing modifications to a plan (the model may accept them without questionning them enough).
+- Be cautious when proposing modifications to a plan (the model may accept them without sufficient scrutiny).
 - Don’t trust a model to rank outputs (either its own or another model's outputs).
 - Instead of list ranking, use pairwise comparison and judge externally.
 - Don't treat "reasoning level" as a quality guarantee.
