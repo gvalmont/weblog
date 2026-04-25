@@ -192,7 +192,7 @@ Unexpectedly, these results suggest an even more interesting **authorship effect
 
 This raises a follow-up question: what happens if plans are evaluated without any notion of authorship?
 
-## Part 2 : Plan evaluation without authorship
+## Plan evaluation without authorship
 
 ### Protocol
 
