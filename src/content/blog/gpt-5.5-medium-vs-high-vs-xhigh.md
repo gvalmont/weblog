@@ -1,5 +1,5 @@
 ---
-title: "GPT-5.5 plan evaluation: ownership and order effects"
+title: "GPT-5.5 ownership and order effects"
 description: "While comparing medium, high, and extra-high reasoning modes on the same task, I uncovered consistent ownership and presentation-order effects in GPT-5.5’s evaluations."
 pubDate: 2026-04-25
 tags: ["coding-agents", "ai", "gpt", "evaluation"]
